@@ -1,7 +1,11 @@
 'use client'
 
 import { useCallback, useEffect } from 'react'
-import { Button, Card, CardContent, CardHeader, Separator, Spinner } from '@heroui/react'
+import {
+  GenerationStatusCard,
+  GenerationToolbar,
+  RegenerateButton,
+} from '@/features/study-session/components/generation-controls'
 import { useGenerateSummary } from '@/features/summary/hooks/use-generate-summary'
 import { SummaryPanel } from '@/features/summary/components/summary-panel'
 import { useSessionStore } from '@/stores/session.store'
@@ -34,48 +38,26 @@ export function SessionSummaryWorkspace({ session }: { session: StudySession }) 
 
   if (!session.summary && isPending) {
     return (
-      <Card className="border border-border bg-card">
-        <CardHeader className="flex flex-col items-start gap-1">
-          <h2 className="text-lg font-semibold">Summary</h2>
-          <p className="text-sm text-muted-foreground">
-            Generating summary from the current study material.
-          </p>
-        </CardHeader>
-        <Separator />
-        <CardContent className="gap-4 py-6">
-          <div className="flex items-center gap-3">
-            <Spinner size="sm" />
-            <p className="text-sm text-muted-foreground">Generating summary...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <GenerationStatusCard
+        title="Summary"
+        description="Generating summary from the current study material."
+        status="loading"
+        message="Generating summary..."
+      />
     )
   }
 
   if (!session.summary && isError) {
     return (
-      <Card className="border border-danger/30 bg-card">
-        <CardHeader className="flex flex-col items-start gap-1">
-          <h2 className="text-lg font-semibold">Summary</h2>
-          <p className="text-sm text-danger">Failed to generate summary.</p>
-        </CardHeader>
-        <Separator />
-        <CardContent className="gap-4">
-          <p className="text-sm text-muted-foreground">
-            Try again to request a fresh summary.
-          </p>
-          <div>
-            <Button
-              variant="primary"
-              onPress={handleGenerate}
-              isDisabled={isPending}
-            >
-              {isPending ? <Spinner size="sm" /> : null}
-              Regenerate summary
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <GenerationStatusCard
+        title="Summary"
+        description="Failed to generate summary."
+        status="error"
+        message="Try again to request a fresh summary."
+        actionLabel="Regenerate summary"
+        isActionPending={isPending}
+        onAction={handleGenerate}
+      />
     )
   }
 
@@ -85,16 +67,13 @@ export function SessionSummaryWorkspace({ session }: { session: StudySession }) 
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
+      <GenerationToolbar>
+        <RegenerateButton
+          label="Regenerate summary"
+          isPending={isPending}
           onPress={handleGenerate}
-          isDisabled={isPending}
-        >
-          {isPending ? <Spinner size="sm" /> : null}
-          Regenerate summary
-        </Button>
-      </div>
+        />
+      </GenerationToolbar>
 
       <SummaryPanel summary={session.summary} />
     </div>

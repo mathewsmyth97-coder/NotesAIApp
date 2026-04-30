@@ -26,15 +26,21 @@ export function AppSidebar() {
             Recent sessions
           </p>
 
-          {sessions.map((session) => (
-            <Link
-              key={session.id}
-              href={`/sessions/${session.id}`}
-              className="block rounded-2xl px-3 py-2 text-sm transition hover:bg-accent"
-            >
-              {session.title}
-            </Link>
-          ))}
+          {sessions.length > 0 ? (
+            sessions.map((session) => (
+              <Link
+                key={session.id}
+                href={`/sessions/${session.id}`}
+                className="block rounded-2xl px-3 py-2 text-sm transition hover:bg-accent"
+              >
+                {session.title}
+              </Link>
+            ))
+          ) : (
+            <p className="px-2 text-sm leading-6 text-muted-foreground">
+              Create a session to see it here.
+            </p>
+          )}
         </div>
       </div>
     </aside>

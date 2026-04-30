@@ -1,19 +1,14 @@
-import { Card, CardContent, CardHeader, Chip, Separator } from '@heroui/react'
+import { Chip } from '@heroui/react'
+import { SessionFeatureCard } from '@/features/study-session/components/session-feature-card'
 import type { SummaryResult } from '@/features/summary/types/summary.types'
 
 export function SummaryPanel({ summary }: { summary: SummaryResult }) {
   return (
-    <Card className="border border-border bg-card">
-      <CardHeader className="flex flex-col items-start gap-1">
-        <h2 className="text-lg font-semibold">Summary</h2>
-        <p className="text-sm text-muted-foreground">
-          A condensed explanation of the current material.
-        </p>
-      </CardHeader>
-
-      <Separator />
-
-      <CardContent className="gap-4">
+    <SessionFeatureCard
+      title="Summary"
+      description="A condensed explanation of the current material."
+      contentClassName="gap-4"
+    >
         <p className="text-sm leading-7 text-muted-foreground">{summary.text}</p>
 
         <div className="flex flex-wrap gap-2">
@@ -27,7 +22,6 @@ export function SummaryPanel({ summary }: { summary: SummaryResult }) {
             </Chip>
           ))}
         </div>
-      </CardContent>
-    </Card>
+    </SessionFeatureCard>
   )
 }

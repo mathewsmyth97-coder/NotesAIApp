@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { StudySession } from '@/features/study-session/types/session.types'
+import type { ChatMessage, StudySession } from '@/features/study-session/types/session.types'
 import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
+import type { QuizQuestion } from '@/features/quiz/types/quiz.types'
 import type { SummaryResult } from '@/features/summary/types/summary.types'
 
 interface SessionStore {
@@ -17,35 +18,14 @@ interface SessionStore {
   setHasHydrated: (hasHydrated: boolean) => void
   saveSummaryToSession: (sessionId: string, summary: SummaryResult) => void
   saveFlashcardsToSession: (sessionId: string, flashcards: Flashcard[]) => void
+  saveQuizToSession: (sessionId: string, quiz: QuizQuestion[]) => void
+  addMessagesToSession: (sessionId: string, messages: ChatMessage[]) => void
 }
-
-const seedSessionTimestamp = '2026-04-30T00:00:00.000Z'
-
-const defaultSessions: StudySession[] = [
-  {
-    id: '1',
-    title: 'Photosynthesis Basics',
-    sourceText: 'Photosynthesis is the process plants use to convert light energy into chemical energy.',
-    tone: 'concise',
-    level: 'beginner',
-    createdAt: seedSessionTimestamp,
-    updatedAt: seedSessionTimestamp,
-  },
-  {
-    id: '2',
-    title: 'JavaScript Closures',
-    sourceText: 'Closures happen when a function retains access to variables from its lexical scope.',
-    tone: 'concise',
-    level: 'intermediate',
-    createdAt: seedSessionTimestamp,
-    updatedAt: seedSessionTimestamp,
-  },
-]
 
 export const useSessionStore = create<SessionStore>()(
   persist(
     (set, get) => ({
-      sessions: defaultSessions,
+      sessions: [],
       hasHydrated: false,
 
       createSession: (input) => {
@@ -91,6 +71,34 @@ export const useSessionStore = create<SessionStore>()(
               ? {
                   ...session,
                   flashcards,
+                  updatedAt: new Date().toISOString(),
+                }
+              : session,
+          ),
+        }))
+      },
+
+      saveQuizToSession: (sessionId, quiz) => {
+        set((state) => ({
+          sessions: state.sessions.map((session) =>
+            session.id === sessionId
+              ? {
+                  ...session,
+                  quiz,
+                  updatedAt: new Date().toISOString(),
+                }
+              : session,
+          ),
+        }))
+      },
+
+      addMessagesToSession: (sessionId, messages) => {
+        set((state) => ({
+          sessions: state.sessions.map((session) =>
+            session.id === sessionId
+              ? {
+                  ...session,
+                  messages: [...(session.messages ?? []), ...messages],
                   updatedAt: new Date().toISOString(),
                 }
               : session,

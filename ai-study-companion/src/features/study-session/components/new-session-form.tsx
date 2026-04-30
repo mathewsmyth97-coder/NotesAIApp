@@ -46,7 +46,7 @@ export function NewSessionForm() {
         <Label className="text-sm font-medium">Session title</Label>
         <Input
           {...form.register('title')}
-          placeholder="e.g. JavaScript Closures"
+          placeholder="e.g. Exam review notes"
           className="w-full rounded-2xl border border-border bg-background px-3 py-2 outline-none transition focus:ring-2 focus:ring-slate-400"
         />
         {form.formState.errors.title ? (

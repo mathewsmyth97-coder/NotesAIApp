@@ -1,19 +1,13 @@
-import { Card, CardContent, CardHeader, Chip, Separator } from '@heroui/react'
+import { Chip } from '@heroui/react'
+import { SessionFeatureCard } from '@/features/study-session/components/session-feature-card'
 import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
 
 export function FlashcardsPanel({ cards }: { cards: Flashcard[] }) {
   return (
-    <Card className="border border-border bg-card">
-      <CardHeader className="flex flex-col items-start gap-1">
-        <h2 className="text-lg font-semibold">Flashcards</h2>
-        <p className="text-sm text-muted-foreground">
-          Quick recall prompts generated from the material.
-        </p>
-      </CardHeader>
-
-      <Separator />
-
-      <CardContent>
+    <SessionFeatureCard
+      title="Flashcards"
+      description="Quick recall prompts generated from the material."
+    >
         <div className="grid gap-4 md:grid-cols-2">
           {cards.map((card) => (
             <article key={card.id} className="rounded-2xl border border-border p-4">
@@ -31,7 +25,6 @@ export function FlashcardsPanel({ cards }: { cards: Flashcard[] }) {
             </article>
           ))}
         </div>
-      </CardContent>
-    </Card>
+    </SessionFeatureCard>
   )
 }

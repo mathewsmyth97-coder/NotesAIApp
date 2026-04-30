@@ -1,9 +1,9 @@
 'use client'
 
+import { SessionChatWorkspace } from '@/features/chat/components/session-chat-workspace'
 import { SessionFlashcardsWorkspace } from '@/features/flashcards/components/session-flashcards-workspace'
-import { QuizPanel } from '@/features/quiz/components/quiz-panel'
+import { SessionQuizWorkspace } from '@/features/quiz/components/session-quiz-workspace'
 import { SessionTabs } from '@/features/study-session/components/session-tabs'
-import { mockQuiz } from '@/mock/quiz'
 import { useSessionUIStore } from '@/stores/session-ui.store'
 import { useSessionStore } from '@/stores/session.store'
 import { useParams } from 'next/navigation'
@@ -37,7 +37,7 @@ export default function SessionPage() {
         <div className="rounded-3xl border border-border bg-card p-6">
           <h1 className="text-xl font-semibold">Session not found</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            This mock session does not exist in local state yet.
+            This session is not saved in this browser.
           </p>
         </div>
       </div>
@@ -57,7 +57,8 @@ export default function SessionPage() {
 
       {activeTab === 'summary' && <SessionSummaryWorkspace session={session} />}
       {activeTab === 'flashcards' && <SessionFlashcardsWorkspace session={session} />}
-      {activeTab === 'quiz' && <QuizPanel questions={mockQuiz} />}
+      {activeTab === 'quiz' && <SessionQuizWorkspace session={session} />}
+      {activeTab === 'chat' && <SessionChatWorkspace session={session} />}
     </div>
   )
 }
