@@ -1,3 +1,5 @@
+'use client'
+
 import { SummaryPanel } from '@/features/summary/components/summary-panel'
 import { FlashcardsPanel } from '@/features/flashcards/components/flashcards-panel'
 import { QuizPanel } from '@/features/quiz/components/quiz-panel'
@@ -5,8 +7,11 @@ import { SessionTabs } from '@/features/study-session/components/session-tabs'
 import { mockSummary } from '@/mock/summary'
 import { mockFlashcards } from '@/mock/flashcards'
 import { mockQuiz } from '@/mock/quiz'
+import { useSessionUIStore } from '@/stores/session-ui.store'
 
 export default function SessionPage() {
+  const activeTab = useSessionUIStore((state) => state.activeTab)
+  
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
@@ -18,9 +23,9 @@ export default function SessionPage() {
 
       <SessionTabs />
 
-      <SummaryPanel summary={mockSummary} />
-      <FlashcardsPanel cards={mockFlashcards} />
-      <QuizPanel questions={mockQuiz} />
+      {activeTab === 'summary' && <SummaryPanel summary={mockSummary} />}
+      {activeTab === 'flashcards' && <FlashcardsPanel cards={mockFlashcards} />}
+      {activeTab === 'quiz' && <QuizPanel questions={mockQuiz} />}
     </div>
   )
 }

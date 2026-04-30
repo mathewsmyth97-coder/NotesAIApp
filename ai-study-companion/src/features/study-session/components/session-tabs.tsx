@@ -5,9 +5,11 @@ import { useSessionUIStore } from '@/stores/session-ui.store'
 
 const tabs = ['summary', 'flashcards', 'quiz', 'chat'] as const
 
+
 export function SessionTabs() {
   const activeTab = useSessionUIStore((state) => state.activeTab)
   const setActiveTab = useSessionUIStore((state) => state.setActiveTab)
+  
 
   return (
     <div className="inline-flex rounded-2xl border border-border bg-card p-1">

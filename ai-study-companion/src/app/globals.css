@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@heroui/styles"; 
+
 
 :root {
   --background: 250 250 250;
@@ -53,4 +55,10 @@ textarea {
   --color-muted-foreground: rgb(var(--muted-foreground));
   --color-border: rgb(var(--border));
   --color-accent: rgb(var(--accent));
+}
+
+@layer components {
+  .select_item {
+    @apply hover:bg-background rounded-2xl border border-border p-2 w-full;
+  }
 }
