@@ -22,6 +22,13 @@ export function AppSidebar() {
           + New Session
         </Link>
 
+        <Link
+          href="/settings"
+          className="mb-5 rounded-2xl border border-border px-3 py-2 text-sm font-medium transition hover:bg-accent"
+        >
+          Settings
+        </Link>
+
         <div className="space-y-2">
           <p className="px-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Recent sessions

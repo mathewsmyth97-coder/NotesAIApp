@@ -1,4 +1,22 @@
+import {
+  getOpenRouterApiKeyForCurrentUser,
+  MissingOpenRouterKeyError,
+  OpenRouterKeyAuthError,
+} from '@/lib/openrouter-user-key'
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+
+export function getOpenRouterErrorStatus(error: unknown) {
+  if (error instanceof OpenRouterKeyAuthError) {
+    return 401
+  }
+
+  if (error instanceof MissingOpenRouterKeyError) {
+    return 400
+  }
+
+  return 500
+}
 
 export async function generateStructuredObject<T>({
   systemPrompt,
@@ -11,11 +29,7 @@ export async function generateStructuredObject<T>({
   schemaName: string
   schema: Record<string, unknown>
 }): Promise<T> {
-  const apiKey = process.env.OPENROUTER_API_KEY
-
-  if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY is not configured on the server.')
-  }
+  const apiKey = await getOpenRouterApiKeyForCurrentUser()
 
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',

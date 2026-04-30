@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { generateStructuredObject } from '@/lib/openrouter'
+import { generateStructuredObject, getOpenRouterErrorStatus } from '@/lib/openrouter'
 
 const quizSchema = {
   type: 'object',
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to generate quiz' },
-      { status: 500 },
+      { status: getOpenRouterErrorStatus(error) },
     )
   }
 }

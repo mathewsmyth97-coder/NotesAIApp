@@ -1,3 +1,9 @@
+import {
+  getOpenRouterApiKeyForCurrentUser,
+  MissingOpenRouterKeyError,
+  OpenRouterKeyAuthError,
+} from '@/lib/openrouter-user-key'
+
 type ChatMessage = {
   id: string
   role: 'user' | 'assistant'
@@ -81,17 +87,7 @@ export async function POST(request: Request) {
     }
 
     const model = process.env.OPENROUTER_MODEL ?? 'openrouter/free'
-    const apiKey = process.env.OPENROUTER_API_KEY
-
-    if (!apiKey) {
-      return Response.json(
-        {
-          code: 'missing_openrouter_api_key',
-          message: 'OPENROUTER_API_KEY is not configured on the server.',
-        },
-        { status: 500 },
-      )
-    }
+    const apiKey = await getOpenRouterApiKeyForCurrentUser()
 
     const upstreamResponse = await fetch(
       'https://openrouter.ai/api/v1/chat/completions',
@@ -228,7 +224,27 @@ export async function POST(request: Request) {
         'Cache-Control': 'no-cache, no-transform',
       },
     })
-  } catch {
+  } catch (error) {
+    if (error instanceof OpenRouterKeyAuthError) {
+      return Response.json(
+        {
+          code: 'unauthorized',
+          message: error.message,
+        },
+        { status: 401 },
+      )
+    }
+
+    if (error instanceof MissingOpenRouterKeyError) {
+      return Response.json(
+        {
+          code: 'missing_openrouter_api_key',
+          message: error.message,
+        },
+        { status: 400 },
+      )
+    }
+
     return new Response('Failed to stream chat response', { status: 500 })
   }
 }

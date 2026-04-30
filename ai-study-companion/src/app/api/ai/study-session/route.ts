@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { generateStructuredObject } from '@/lib/openrouter'
+import { generateStructuredObject, getOpenRouterErrorStatus } from '@/lib/openrouter'
 import type { GeneratedStudyContent } from '@/features/study-session/types/session.types'
 
 const summarySchema = {
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
             ? error.message
             : 'Failed to generate study session',
       },
-      { status: 500 },
+      { status: getOpenRouterErrorStatus(error) },
     )
   }
 }
