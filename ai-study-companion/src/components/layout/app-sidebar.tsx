@@ -1,12 +1,11 @@
-import Link from 'next/link'
+'use client'
 
-const sessions = [
-  { id: '1', title: 'Photosynthesis Basics' },
-  { id: '2', title: 'JavaScript Closures' },
-  { id: '3', title: 'French Revolution' },
-]
+import Link from 'next/link'
+import { useSessionStore } from '@/stores/session.store'
 
 export function AppSidebar() {
+  const sessions = useSessionStore((state) => state.sessions)
+
   return (
     <aside className="hidden border-r border-border bg-card/40 lg:block">
       <div className="sticky top-0 flex h-screen flex-col p-4">
@@ -26,6 +25,7 @@ export function AppSidebar() {
           <p className="px-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Recent sessions
           </p>
+
           {sessions.map((session) => (
             <Link
               key={session.id}

@@ -9,9 +9,11 @@ import {
 } from '@/features/study-session/schemas/session.schema'
 import { Button, Form, Input, Label, ListBox, Select } from '@heroui/react'
 import { Controller } from 'react-hook-form'
+import { useSessionStore } from '@/stores/session.store'
 
 export function NewSessionForm() {
   const router = useRouter()
+  const createSession = useSessionStore((state) => state.createSession)
 
   const form = useForm<CreateSessionInput>({
     resolver: zodResolver(createSessionSchema),
@@ -23,9 +25,11 @@ export function NewSessionForm() {
     },
   })
 
-  const onSubmit = (_values: CreateSessionInput) => {
-    router.push('/sessions/1')
+  const onSubmit = (values: CreateSessionInput) => {
+    const session = createSession(values)
+    router.push(`/sessions/${session.id}`)
   }
+
 
   return (
     <Form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
