@@ -8,13 +8,23 @@ import {
   GenerationToolbar,
   RegenerateButton,
 } from '@/features/study-session/components/generation-controls'
+import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 import type { StudySession } from '@/features/study-session/types/session.types'
-import { useSessionStore } from '@/stores/session.store'
 
 export function SessionFlashcardsWorkspace({ session }: { session: StudySession }) {
-  const saveFlashcardsToSession = useSessionStore((state) => state.saveFlashcardsToSession)
-  const { isError, isPending, mutate } = useGenerateFlashcards()
+  const {
+    isError: isGenerateError,
+    isPending: isGenerating,
+    mutate,
+  } = useGenerateFlashcards()
+  const {
+    isError: isUpdateError,
+    isPending: isUpdating,
+    mutate: updateSession,
+  } = useUpdateStudySession(session.id)
   const hasFlashcards = Boolean(session.flashcards?.length)
+  const isError = isGenerateError || isUpdateError
+  const isPending = isGenerating || isUpdating
 
   const handleGenerate = useCallback(() => {
     mutate(
@@ -27,13 +37,13 @@ export function SessionFlashcardsWorkspace({ session }: { session: StudySession 
       },
       {
         onSuccess: (data) => {
-          saveFlashcardsToSession(session.id, data)
+          updateSession({ flashcards: data })
         },
       },
     )
   }, [
     mutate,
-    saveFlashcardsToSession,
+    updateSession,
     session.id,
     session.level,
     session.sourceText,

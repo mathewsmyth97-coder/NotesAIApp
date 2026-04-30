@@ -5,16 +5,23 @@ import { ChatPanel } from '@/features/chat/components/chat-panel'
 import { useStreamChatMessage } from '@/features/chat/hooks/use-stream-chat-message'
 import { ChatStreamError } from '@/features/chat/services/chat.service'
 import type { ChatMessage, StudySession } from '@/features/study-session/types/session.types'
-import { useSessionStore } from '@/stores/session.store'
+import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 
 export function SessionChatWorkspace({ session }: { session: StudySession }) {
   const [draft, setDraft] = useState('')
   const [streamingContent, setStreamingContent] = useState('')
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
   const [isStreamingActive, setIsStreamingActive] = useState(false)
-  const addMessagesToSession = useSessionStore((state) => state.addMessagesToSession)
+  const [localConversation, setLocalConversation] = useState<{
+    sessionId: string
+    messages: ChatMessage[]
+  } | null>(null)
+  const { mutate: updateSession } = useUpdateStudySession(session.id)
   const { error, isError, isPending, mutate } = useStreamChatMessage()
-  const messages = session.messages ?? []
+  const messages =
+    localConversation?.sessionId === session.id
+      ? localConversation.messages
+      : (session.messages ?? [])
   const isStreaming = isPending || isStreamingActive
   const errorMessage =
     error instanceof ChatStreamError &&
@@ -38,7 +45,7 @@ export function SessionChatWorkspace({ session }: { session: StudySession }) {
     }
     const nextMessages = [...messages, userMessage]
 
-    addMessagesToSession(session.id, [userMessage])
+    setLocalConversation({ sessionId: session.id, messages: nextMessages })
     setDraft('')
     setStreamingContent('')
     setStreamingMessageId(assistantMessageId)
@@ -66,13 +73,16 @@ export function SessionChatWorkspace({ session }: { session: StudySession }) {
             content,
             createdAt: new Date().toISOString(),
           }
+          const completedMessages = [...nextMessages, assistantMessage]
 
-          addMessagesToSession(session.id, [assistantMessage])
+          setLocalConversation({ sessionId: session.id, messages: completedMessages })
+          updateSession({ messages: completedMessages })
           setStreamingContent('')
           setStreamingMessageId(null)
           setIsStreamingActive(false)
         },
         onError: () => {
+          updateSession({ messages: nextMessages })
           setStreamingContent('')
           setStreamingMessageId(null)
           setIsStreamingActive(false)

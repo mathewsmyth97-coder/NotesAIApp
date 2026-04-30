@@ -11,6 +11,7 @@ export type ChatMessage = {
 
 export type StudySession = {
   id: string
+  userId: string
   title: string
   sourceText: string
   tone: 'concise' | 'detailed'

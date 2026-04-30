@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useSessionStore } from '@/stores/session.store'
+import { Spinner } from '@heroui/react'
+import { useStudySessions } from '@/features/study-session/hooks/use-study-sessions'
 
 export function AppSidebar() {
-  const sessions = useSessionStore((state) => state.sessions)
+  const { data: sessions = [], isError, isPending } = useStudySessions()
 
   return (
     <aside className="hidden border-r border-border bg-card/40 lg:block">
@@ -26,7 +27,16 @@ export function AppSidebar() {
             Recent sessions
           </p>
 
-          {sessions.length > 0 ? (
+          {isPending ? (
+            <div className="flex items-center gap-2 px-2 text-sm text-muted-foreground">
+              <Spinner size="sm" />
+              Loading sessions...
+            </div>
+          ) : isError ? (
+            <p className="px-2 text-sm leading-6 text-red-500">
+              Failed to load sessions.
+            </p>
+          ) : sessions.length > 0 ? (
             sessions.map((session) => (
               <Link
                 key={session.id}

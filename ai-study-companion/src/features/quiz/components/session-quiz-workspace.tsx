@@ -8,13 +8,23 @@ import {
   GenerationToolbar,
   RegenerateButton,
 } from '@/features/study-session/components/generation-controls'
+import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 import type { StudySession } from '@/features/study-session/types/session.types'
-import { useSessionStore } from '@/stores/session.store'
 
 export function SessionQuizWorkspace({ session }: { session: StudySession }) {
-  const saveQuizToSession = useSessionStore((state) => state.saveQuizToSession)
-  const { isError, isPending, mutate } = useGenerateQuiz()
+  const {
+    isError: isGenerateError,
+    isPending: isGenerating,
+    mutate,
+  } = useGenerateQuiz()
+  const {
+    isError: isUpdateError,
+    isPending: isUpdating,
+    mutate: updateSession,
+  } = useUpdateStudySession(session.id)
   const hasQuiz = Boolean(session.quiz?.length)
+  const isError = isGenerateError || isUpdateError
+  const isPending = isGenerating || isUpdating
 
   const handleGenerate = useCallback(() => {
     mutate(
@@ -27,13 +37,13 @@ export function SessionQuizWorkspace({ session }: { session: StudySession }) {
       },
       {
         onSuccess: (data) => {
-          saveQuizToSession(session.id, data)
+          updateSession({ quiz: data })
         },
       },
     )
   }, [
     mutate,
-    saveQuizToSession,
+    updateSession,
     session.id,
     session.level,
     session.sourceText,

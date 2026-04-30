@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/providers/theme-provider'
-import { useSessionStore } from '@/stores/session.store'
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -17,15 +16,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         },
       }),
   )
-
-  useEffect(() => {
-    if (useSessionStore.persist.hasHydrated()) {
-      useSessionStore.getState().setHasHydrated(true)
-      return
-    }
-
-    void useSessionStore.persist.rehydrate()
-  }, [])
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>

@@ -8,12 +8,22 @@ import {
 } from '@/features/study-session/components/generation-controls'
 import { useGenerateSummary } from '@/features/summary/hooks/use-generate-summary'
 import { SummaryPanel } from '@/features/summary/components/summary-panel'
-import { useSessionStore } from '@/stores/session.store'
+import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 import type { StudySession } from '@/features/study-session/types/session.types'
 
 export function SessionSummaryWorkspace({ session }: { session: StudySession }) {
-  const saveSummaryToSession = useSessionStore((state) => state.saveSummaryToSession)
-  const { isError, isPending, mutate } = useGenerateSummary()
+  const {
+    isError: isGenerateError,
+    isPending: isGenerating,
+    mutate,
+  } = useGenerateSummary()
+  const {
+    isError: isUpdateError,
+    isPending: isUpdating,
+    mutate: updateSession,
+  } = useUpdateStudySession(session.id)
+  const isError = isGenerateError || isUpdateError
+  const isPending = isGenerating || isUpdating
 
   const handleGenerate = useCallback(() => {
     mutate(
@@ -26,13 +36,13 @@ export function SessionSummaryWorkspace({ session }: { session: StudySession }) 
       },
       {
         onSuccess: (data) => {
-          saveSummaryToSession(session.id, data)
+          updateSession({ summary: data })
         },
       },
     )
   }, [
     mutate,
-    saveSummaryToSession,
+    updateSession,
     session.id,
     session.level,
     session.sourceText,

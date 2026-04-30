@@ -10,7 +10,7 @@ import {
 } from '@/features/study-session/schemas/session.schema'
 import { Button, Form, Input, Label, ListBox, Select, Spinner } from '@heroui/react'
 import { useGenerateStudySession } from '@/features/study-session/hooks/use-generate-study-session'
-import { useSessionStore } from '@/stores/session.store'
+import { useCreateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 
 const toneOptions = [
   { id: 'concise', label: 'Concise' },
@@ -25,8 +25,10 @@ const levelOptions = [
 
 export function NewSessionForm() {
   const router = useRouter()
-  const createSession = useSessionStore((state) => state.createSession)
-  const { isPending, mutateAsync } = useGenerateStudySession()
+  const { isPending: isGeneratingContent, mutateAsync: generateStudyContent } =
+    useGenerateStudySession()
+  const { isPending: isCreatingSession, mutateAsync: createStudySession } =
+    useCreateStudySession()
   const [generationError, setGenerationError] = useState<string | null>(null)
 
   const form = useForm<CreateSessionInput>({
@@ -43,8 +45,8 @@ export function NewSessionForm() {
     setGenerationError(null)
 
     try {
-      const generatedContent = await mutateAsync(values)
-      const session = createSession({
+      const generatedContent = await generateStudyContent(values)
+      const session = await createStudySession({
         ...values,
         ...generatedContent,
       })
@@ -59,7 +61,8 @@ export function NewSessionForm() {
     }
   }
 
-  const isGenerating = form.formState.isSubmitting || isPending
+  const isGenerating =
+    form.formState.isSubmitting || isGeneratingContent || isCreatingSession
 
   return (
     <Form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
