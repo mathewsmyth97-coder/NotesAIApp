@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { StudySession } from '@/features/study-session/types/session.types'
+import { SummaryResult } from '@/features/summary/types/summary.types'
 
 interface SessionStore {
   sessions: StudySession[]
@@ -13,6 +14,8 @@ interface SessionStore {
   }) => StudySession
   getSessionById: (id: string) => StudySession | undefined
   setHasHydrated: (hasHydrated: boolean) => void
+  saveSummaryToSession: (sessionId: string, summary: SummaryResult) => void
+
 }
 
 const seedSessionTimestamp = '2026-04-30T00:00:00.000Z'
@@ -64,6 +67,20 @@ export const useSessionStore = create<SessionStore>()(
 
       getSessionById: (id) => {
         return get().sessions.find((session) => session.id === id)
+      },
+
+      saveSummaryToSession: (sessionId, summary) => {
+        set((state) => ({
+          sessions: state.sessions.map((session) =>
+            session.id === sessionId
+              ? {
+                ...session,
+                summary,
+                updatedAt: new Date().toISOString(),
+              }
+              : session,
+          ),
+        }))
       },
 
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),

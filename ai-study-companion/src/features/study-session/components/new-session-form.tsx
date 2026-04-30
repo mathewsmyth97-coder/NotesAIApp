@@ -1,15 +1,25 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   createSessionSchema,
   type CreateSessionInput,
 } from '@/features/study-session/schemas/session.schema'
 import { Button, Form, Input, Label, ListBox, Select } from '@heroui/react'
-import { Controller } from 'react-hook-form'
 import { useSessionStore } from '@/stores/session.store'
+
+const toneOptions = [
+  { id: 'concise', label: 'Concise' },
+  { id: 'detailed', label: 'Detailed' },
+] as const
+
+const levelOptions = [
+  { id: 'beginner', label: 'Beginner' },
+  { id: 'intermediate', label: 'Intermediate' },
+  { id: 'advanced', label: 'Advanced' },
+] as const
 
 export function NewSessionForm() {
   const router = useRouter()
@@ -30,11 +40,10 @@ export function NewSessionForm() {
     router.push(`/sessions/${session.id}`)
   }
 
-
   return (
     <Form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label  className="text-sm font-medium">Session title</Label>
+        <Label className="text-sm font-medium">Session title</Label>
         <Input
           {...form.register('title')}
           placeholder="e.g. JavaScript Closures"
@@ -46,7 +55,7 @@ export function NewSessionForm() {
       </div>
 
       <div className="space-y-2">
-        <Label  className="text-sm font-medium">Study material</Label>
+        <Label className="text-sm font-medium">Study material</Label>
         <Input
           {...form.register('sourceText')}
           type="textarea"
@@ -68,6 +77,13 @@ export function NewSessionForm() {
             render={({ field }) => (
               <Select
                 className="w-full rounded-2xl px-3 py-2"
+                selectedKey={field.value}
+                onBlur={field.onBlur}
+                onSelectionChange={(key) => {
+                  if (key) {
+                    field.onChange(key.toString())
+                  }
+                }}
               >
                 <Select.Trigger>
                   <Select.Value />
@@ -75,34 +91,16 @@ export function NewSessionForm() {
                 </Select.Trigger>
                 <Select.Popover className="">
                   <ListBox>
-                    <ListBox.Item
-                      id="concise"
-                      textValue="Concise"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Concise
-                    </ListBox.Item>
-                    <ListBox.Item
-                      id="detailed"
-                      textValue="Detailed"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Detailed
-                    </ListBox.Item>
-                    <ListBox.Item
-                      id="friendly"
-                      textValue="Friendly"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Friendly
-                    </ListBox.Item>
-                    <ListBox.Item
-                      id="formal"
-                      textValue="Formal"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Formal
-                    </ListBox.Item>
+                    {toneOptions.map((option) => (
+                      <ListBox.Item
+                        key={option.id}
+                        id={option.id}
+                        textValue={option.label}
+                        className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
+                      >
+                        {option.label}
+                      </ListBox.Item>
+                    ))}
                   </ListBox>
                 </Select.Popover>
               </Select>
@@ -111,22 +109,21 @@ export function NewSessionForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Difficulty</label>
-          {/* <select
-            {...form.register('level')}
-            className="w-full rounded-2xl border border-border bg-background px-3 py-2 outline-none"
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select> */}
-          <Controller 
+          <Label className="text-sm font-medium">Difficulty</Label>
+          <Controller
             name="level"
             control={form.control}
             defaultValue="intermediate"
             render={({ field }) => (
               <Select
                 className="w-full rounded-2xl px-3 py-2"
+                selectedKey={field.value}
+                onBlur={field.onBlur}
+                onSelectionChange={(key) => {
+                  if (key) {
+                    field.onChange(key.toString())
+                  }
+                }}
               >
                 <Select.Trigger>
                   <Select.Value />
@@ -134,27 +131,16 @@ export function NewSessionForm() {
                 </Select.Trigger>
                 <Select.Popover className="">
                   <ListBox>
-                    <ListBox.Item
-                      id="beginner"
-                      textValue="Beginner"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Beginner
-                    </ListBox.Item>
-                    <ListBox.Item
-                      id="intermediate"
-                      textValue="Intermediate"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Intermediate
-                    </ListBox.Item>
-                    <ListBox.Item
-                      id="advanced"
-                      textValue="Advanced"
-                      className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
-                    >
-                      Advanced
-                    </ListBox.Item>
+                    {levelOptions.map((option) => (
+                      <ListBox.Item
+                        key={option.id}
+                        id={option.id}
+                        textValue={option.label}
+                        className="rounded-xl px-3 py-2 transition-colors hover:bg-slate-700 hover:text-white focus:bg-slate-700 focus:text-white"
+                      >
+                        {option.label}
+                      </ListBox.Item>
+                    ))}
                   </ListBox>
                 </Select.Popover>
               </Select>

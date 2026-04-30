@@ -1,15 +1,14 @@
 'use client'
 
-import { SummaryPanel } from '@/features/summary/components/summary-panel'
 import { FlashcardsPanel } from '@/features/flashcards/components/flashcards-panel'
 import { QuizPanel } from '@/features/quiz/components/quiz-panel'
 import { SessionTabs } from '@/features/study-session/components/session-tabs'
-import { mockSummary } from '@/mock/summary'
 import { mockFlashcards } from '@/mock/flashcards'
 import { mockQuiz } from '@/mock/quiz'
 import { useSessionUIStore } from '@/stores/session-ui.store'
 import { useSessionStore } from '@/stores/session.store'
 import { useParams } from 'next/navigation'
+import { SessionSummaryWorkspace } from '@/features/summary/components/session-summary-workspace'
 
 const formatLabel = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
 
@@ -57,7 +56,7 @@ export default function SessionPage() {
 
       <SessionTabs />
 
-      {activeTab === 'summary' && <SummaryPanel summary={mockSummary} />}
+      {activeTab === 'summary' && <SessionSummaryWorkspace session={session} />}
       {activeTab === 'flashcards' && <FlashcardsPanel cards={mockFlashcards} />}
       {activeTab === 'quiz' && <QuizPanel questions={mockQuiz} />}
     </div>
