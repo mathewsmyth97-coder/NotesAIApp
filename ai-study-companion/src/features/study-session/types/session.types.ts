@@ -23,6 +23,11 @@ export type StudySession = {
   messages?: ChatMessage[]
 }
 
+export type GeneratedStudyContent = {
+  summary: SummaryResult
+  flashcards: Flashcard[]
+  quiz: QuizQuestion[]
+}
 
 export type StreamingAssistantMessage = {
   id: string

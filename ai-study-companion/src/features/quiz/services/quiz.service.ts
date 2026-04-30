@@ -8,8 +8,10 @@ export async function generateQuiz(payload: {
   tone: 'concise' | 'detailed'
   level: 'beginner' | 'intermediate' | 'advanced'
 }) {
-  return fetcher<{ questions: QuizQuestion[] }>('/api/ai/quiz', {
+  const result = await fetcher<{ questions: QuizQuestion[] }>('/api/ai/quiz', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+
+  return result.questions
 }

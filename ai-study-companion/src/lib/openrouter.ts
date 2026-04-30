@@ -11,12 +11,18 @@ export async function generateStructuredObject<T>({
   schemaName: string
   schema: Record<string, unknown>
 }): Promise<T> {
+  const apiKey = process.env.OPENROUTER_API_KEY
+
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY is not configured on the server.')
+  }
+
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': 'http://localhost:3000',
+      'HTTP-Referer': process.env.OPENROUTER_SITE_URL ?? 'http://localhost:3000',
       'X-Title': 'AI Study Companion',
     },
     body: JSON.stringify({

@@ -1,6 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ChatMessage, StudySession } from '@/features/study-session/types/session.types'
+import type {
+  ChatMessage,
+  GeneratedStudyContent,
+  StudySession,
+} from '@/features/study-session/types/session.types'
 import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
 import type { QuizQuestion } from '@/features/quiz/types/quiz.types'
 import type { SummaryResult } from '@/features/summary/types/summary.types'
@@ -13,7 +17,7 @@ interface SessionStore {
     sourceText: string
     tone: 'concise' | 'detailed'
     level: 'beginner' | 'intermediate' | 'advanced'
-  }) => StudySession
+  } & Partial<GeneratedStudyContent>) => StudySession
   getSessionById: (id: string) => StudySession | undefined
   setHasHydrated: (hasHydrated: boolean) => void
   saveSummaryToSession: (sessionId: string, summary: SummaryResult) => void
@@ -35,6 +39,9 @@ export const useSessionStore = create<SessionStore>()(
           sourceText: input.sourceText,
           tone: input.tone,
           level: input.level,
+          summary: input.summary,
+          flashcards: input.flashcards,
+          quiz: input.quiz,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }

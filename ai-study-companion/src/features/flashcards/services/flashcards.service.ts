@@ -8,8 +8,10 @@ export async function generateFlashcards(payload: {
   tone: 'concise' | 'detailed'
   level: 'beginner' | 'intermediate' | 'advanced'
 }) {
-  return fetcher<{ cards: Flashcard[] }>('/api/ai/flashcards', {
+  const result = await fetcher<{ cards: Flashcard[] }>('/api/ai/flashcards', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+
+  return result.cards
 }

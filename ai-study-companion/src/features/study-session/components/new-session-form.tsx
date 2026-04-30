@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,7 +8,8 @@ import {
   createSessionSchema,
   type CreateSessionInput,
 } from '@/features/study-session/schemas/session.schema'
-import { Button, Form, Input, Label, ListBox, Select } from '@heroui/react'
+import { Button, Form, Input, Label, ListBox, Select, Spinner } from '@heroui/react'
+import { useGenerateStudySession } from '@/features/study-session/hooks/use-generate-study-session'
 import { useSessionStore } from '@/stores/session.store'
 
 const toneOptions = [
@@ -24,6 +26,8 @@ const levelOptions = [
 export function NewSessionForm() {
   const router = useRouter()
   const createSession = useSessionStore((state) => state.createSession)
+  const { isPending, mutateAsync } = useGenerateStudySession()
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   const form = useForm<CreateSessionInput>({
     resolver: zodResolver(createSessionSchema),
@@ -35,10 +39,27 @@ export function NewSessionForm() {
     },
   })
 
-  const onSubmit = (values: CreateSessionInput) => {
-    const session = createSession(values)
-    router.push(`/sessions/${session.id}`)
+  const onSubmit = async (values: CreateSessionInput) => {
+    setGenerationError(null)
+
+    try {
+      const generatedContent = await mutateAsync(values)
+      const session = createSession({
+        ...values,
+        ...generatedContent,
+      })
+
+      router.push(`/sessions/${session.id}`)
+    } catch (error) {
+      setGenerationError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to generate study session. Please try again.',
+      )
+    }
   }
+
+  const isGenerating = form.formState.isSubmitting || isPending
 
   return (
     <Form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -151,10 +172,16 @@ export function NewSessionForm() {
 
       <Button
         type="submit"
+        isDisabled={isGenerating}
         className="rounded-2xl bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-90"
       >
-        Generate study session
+        {isGenerating ? <Spinner size="sm" /> : null}
+        {isGenerating ? 'Generating study session...' : 'Generate study session'}
       </Button>
+
+      {generationError ? (
+        <p className="text-sm text-red-500">{generationError}</p>
+      ) : null}
     </Form>
   )
 }

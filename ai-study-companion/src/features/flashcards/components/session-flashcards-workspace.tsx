@@ -20,6 +20,7 @@ export function SessionFlashcardsWorkspace({ session }: { session: StudySession 
     mutate(
       {
         sessionId: session.id,
+        title: session.title,
         sourceText: session.sourceText,
         tone: session.tone,
         level: session.level,
@@ -36,6 +37,7 @@ export function SessionFlashcardsWorkspace({ session }: { session: StudySession 
     session.id,
     session.level,
     session.sourceText,
+    session.title,
     session.tone,
   ])
 
