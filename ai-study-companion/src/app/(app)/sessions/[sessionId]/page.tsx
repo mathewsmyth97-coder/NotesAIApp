@@ -1,9 +1,8 @@
 'use client'
 
-import { FlashcardsPanel } from '@/features/flashcards/components/flashcards-panel'
+import { SessionFlashcardsWorkspace } from '@/features/flashcards/components/session-flashcards-workspace'
 import { QuizPanel } from '@/features/quiz/components/quiz-panel'
 import { SessionTabs } from '@/features/study-session/components/session-tabs'
-import { mockFlashcards } from '@/mock/flashcards'
 import { mockQuiz } from '@/mock/quiz'
 import { useSessionUIStore } from '@/stores/session-ui.store'
 import { useSessionStore } from '@/stores/session.store'
@@ -57,7 +56,7 @@ export default function SessionPage() {
       <SessionTabs />
 
       {activeTab === 'summary' && <SessionSummaryWorkspace session={session} />}
-      {activeTab === 'flashcards' && <FlashcardsPanel cards={mockFlashcards} />}
+      {activeTab === 'flashcards' && <SessionFlashcardsWorkspace session={session} />}
       {activeTab === 'quiz' && <QuizPanel questions={mockQuiz} />}
     </div>
   )

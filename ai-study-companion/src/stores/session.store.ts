@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { StudySession } from '@/features/study-session/types/session.types'
-import { SummaryResult } from '@/features/summary/types/summary.types'
+import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
+import type { SummaryResult } from '@/features/summary/types/summary.types'
 
 interface SessionStore {
   sessions: StudySession[]
@@ -15,7 +16,7 @@ interface SessionStore {
   getSessionById: (id: string) => StudySession | undefined
   setHasHydrated: (hasHydrated: boolean) => void
   saveSummaryToSession: (sessionId: string, summary: SummaryResult) => void
-
+  saveFlashcardsToSession: (sessionId: string, flashcards: Flashcard[]) => void
 }
 
 const seedSessionTimestamp = '2026-04-30T00:00:00.000Z'
@@ -74,10 +75,24 @@ export const useSessionStore = create<SessionStore>()(
           sessions: state.sessions.map((session) =>
             session.id === sessionId
               ? {
-                ...session,
-                summary,
-                updatedAt: new Date().toISOString(),
-              }
+                  ...session,
+                  summary,
+                  updatedAt: new Date().toISOString(),
+                }
+              : session,
+          ),
+        }))
+      },
+
+      saveFlashcardsToSession: (sessionId, flashcards) => {
+        set((state) => ({
+          sessions: state.sessions.map((session) =>
+            session.id === sessionId
+              ? {
+                  ...session,
+                  flashcards,
+                  updatedAt: new Date().toISOString(),
+                }
               : session,
           ),
         }))

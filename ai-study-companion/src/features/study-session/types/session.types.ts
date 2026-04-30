@@ -1,4 +1,5 @@
 import type { SummaryResult } from '@/features/summary/types/summary.types'
+import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
 
 export type StudySession = {
   id: string
@@ -9,4 +10,5 @@ export type StudySession = {
   createdAt: string
   updatedAt: string
   summary?: SummaryResult
+  flashcards?: Flashcard[]
 }
