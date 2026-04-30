@@ -1,43 +1,59 @@
 import { NextResponse } from 'next/server'
-import type { Flashcard } from '@/features/flashcards/types/flashcards.types'
+import { generateStructuredObject } from '@/lib/openrouter'
 
-const getKeyword = (sourceText: string) => {
-  const [keyword] = sourceText
-    .replace(/[^\w\s]/g, ' ')
-    .split(/\s+/)
-    .filter((word) => word.length > 5)
-
-  return keyword ?? 'the topic'
+const flashcardsSchema = {
+  type: 'object',
+  properties: {
+    cards: {
+      type: 'array',
+      minItems: 5,
+      maxItems: 8,
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          front: { type: 'string' },
+          back: { type: 'string' },
+        },
+        required: ['id', 'front', 'back'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['cards'],
+  additionalProperties: false,
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const { sourceText, level } = body
+  try {
+    const body = await request.json()
+    const { title, sourceText, tone, level } = body
 
-  if (!sourceText) {
-    return NextResponse.json({ error: 'Missing sourceText' }, { status: 400 })
+    if (!sourceText) {
+      return NextResponse.json({ error: 'Missing sourceText' }, { status: 400 })
+    }
+
+    const result = await generateStructuredObject<{
+      cards: Array<{ id: string; front: string; back: string }>
+    }>({
+      schemaName: 'flashcards_result',
+      schema: flashcardsSchema,
+      systemPrompt:
+        `You are an AI study companion. ` +
+        `Create useful study flashcards from the material. ` +
+        `Use a ${tone} tone. ` +
+        `Target ${level} difficulty. ` +
+        `Make fronts short and backs clear.`,
+      userPrompt:
+        `Session title: ${title}\n\n` +
+        `Study material:\n${sourceText}`,
+    })
+
+    return NextResponse.json(result)
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to generate flashcards' },
+      { status: 500 },
+    )
   }
-
-  const keyword = getKeyword(sourceText)
-  const detail = level === 'advanced' ? 'precise details' : 'the main idea'
-
-  const flashcards: Flashcard[] = [
-    {
-      id: '1',
-      front: `What is the key idea behind ${keyword}?`,
-      back: `Explain ${detail} using the source material as evidence.`,
-    },
-    {
-      id: '2',
-      front: `Why does ${keyword} matter?`,
-      back: 'Connect the concept to a consequence, use case, or important relationship from the notes.',
-    },
-    {
-      id: '3',
-      front: 'What is one detail worth remembering?',
-      back: `${sourceText.slice(0, 120)}${sourceText.length > 120 ? '...' : ''}`,
-    },
-  ]
-
-  return NextResponse.json(flashcards)
 }

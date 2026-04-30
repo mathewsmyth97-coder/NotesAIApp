@@ -14,6 +14,7 @@ export function useStreamChatMessage() {
         sourceText: string
         tone: 'concise' | 'detailed'
         level: 'beginner' | 'intermediate' | 'advanced'
+        title: string
         messages: {
           id: string
           role: 'user' | 'assistant'

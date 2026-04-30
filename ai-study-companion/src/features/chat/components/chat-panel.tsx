@@ -11,6 +11,7 @@ export function ChatPanel({
   messages,
   draft,
   hasError,
+  errorMessage,
   streamingContent = '',
   streamingMessageId,
   isStreaming,
@@ -20,6 +21,7 @@ export function ChatPanel({
   messages: ChatMessage[]
   draft: string
   hasError: boolean
+  errorMessage?: string
   streamingContent?: string
   streamingMessageId?: string | null
   isStreaming: boolean
@@ -113,7 +115,7 @@ export function ChatPanel({
 
       {hasError ? (
         <p className="text-sm text-danger">
-          The AI reply could not be generated. Try sending another message.
+          {errorMessage ?? 'The AI reply could not be generated. Try sending another message.'}
         </p>
       ) : null}
 

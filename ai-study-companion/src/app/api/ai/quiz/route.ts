@@ -1,65 +1,72 @@
 import { NextResponse } from 'next/server'
-import type { QuizQuestion } from '@/features/quiz/types/quiz.types'
+import { generateStructuredObject } from '@/lib/openrouter'
 
-const getKeyword = (sourceText: string) => {
-  const [keyword] = sourceText
-    .replace(/[^\w\s]/g, ' ')
-    .split(/\s+/)
-    .filter((word) => word.length > 5)
-
-  return keyword ?? 'the topic'
+const quizSchema = {
+  type: 'object',
+  properties: {
+    questions: {
+      type: 'array',
+      minItems: 5,
+      maxItems: 8,
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          question: { type: 'string' },
+          options: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 4,
+            maxItems: 4,
+          },
+          correctAnswer: { type: 'string' },
+          explanation: { type: 'string' },
+        },
+        required: ['id', 'question', 'options', 'correctAnswer', 'explanation'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['questions'],
+  additionalProperties: false,
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const { sourceText, level } = body
+  try {
+    const body = await request.json()
+    const { title, sourceText, tone, level } = body
 
-  if (!sourceText) {
-    return NextResponse.json({ error: 'Missing sourceText' }, { status: 400 })
+    if (!sourceText) {
+      return NextResponse.json({ error: 'Missing sourceText' }, { status: 400 })
+    }
+
+    const result = await generateStructuredObject<{
+      questions: Array<{
+        id: string
+        question: string
+        options: string[]
+        correctAnswer: string
+        explanation: string
+      }>
+    }>({
+      schemaName: 'quiz_result',
+      schema: quizSchema,
+      systemPrompt:
+        `You are an AI study companion. ` +
+        `Create a multiple-choice quiz from the material. ` +
+        `Use a ${tone} tone. ` +
+        `Target ${level} difficulty. ` +
+        `Each question should have exactly 4 options and one correct answer.`,
+      userPrompt:
+        `Session title: ${title}\n\n` +
+        `Study material:\n${sourceText}`,
+    })
+
+    return NextResponse.json(result)
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to generate quiz' },
+      { status: 500 },
+    )
   }
-
-  const keyword = getKeyword(sourceText)
-  const challenge = level === 'advanced' ? 'best evaluates' : 'describes'
-  const excerpt = `${sourceText.slice(0, 100)}${sourceText.length > 100 ? '...' : ''}`
-
-  const quiz: QuizQuestion[] = [
-    {
-      id: '1',
-      question: `Which option ${challenge} the main idea of ${keyword}?`,
-      options: [
-        `It explains ${keyword} using the study material.`,
-        'It is unrelated background information.',
-        'It only lists vocabulary without context.',
-        'It contradicts the notes.',
-      ],
-      correctAnswer: `It explains ${keyword} using the study material.`,
-      explanation: `The source centers on ${keyword}, so the strongest answer should connect back to that concept.`,
-    },
-    {
-      id: '2',
-      question: 'Which detail should you use as evidence when answering?',
-      options: [
-        excerpt,
-        'A detail from a different topic.',
-        'A guess that is not in the notes.',
-        'A definition with no connection to the material.',
-      ],
-      correctAnswer: excerpt,
-      explanation: 'Using the provided material keeps the answer grounded in the session source text.',
-    },
-    {
-      id: '3',
-      question: 'What is the best next step after learning this concept?',
-      options: [
-        'Explain it in your own words and test it with examples.',
-        'Skip review until the exam.',
-        'Memorize only the title.',
-        'Ignore any confusing parts.',
-      ],
-      correctAnswer: 'Explain it in your own words and test it with examples.',
-      explanation: 'Self-explanation and retrieval practice help turn recognition into usable understanding.',
-    },
-  ]
-
-  return NextResponse.json(quiz)
 }
