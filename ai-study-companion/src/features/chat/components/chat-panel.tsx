@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useRef } from 'react'
+import type { ReactNode } from 'react'
 import { Button, Chip, Spinner, TextArea } from '@heroui/react'
 import { Send } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -16,6 +17,9 @@ export function ChatPanel({
   streamingContent = '',
   streamingMessageId,
   isStreaming,
+  variant = 'default',
+  className,
+  headerAction,
   onDraftChange,
   onSubmit,
 }: {
@@ -26,12 +30,16 @@ export function ChatPanel({
   streamingContent?: string
   streamingMessageId?: string | null
   isStreaming: boolean
+  variant?: 'default' | 'sidebar'
+  className?: string
+  headerAction?: ReactNode
   onDraftChange: (value: string) => void
   onSubmit: () => void
 }) {
   const canSubmit = draft.trim().length > 0 && !isStreaming
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const streamingBubbleId = streamingMessageId ?? 'streaming-assistant-message'
+  const isSidebar = variant === 'sidebar'
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
@@ -46,11 +54,23 @@ export function ChatPanel({
     <SessionFeatureCard
       title="Chat"
       description="Ask follow-up questions about the current study session."
-      contentClassName="gap-4"
+      className={cn(isSidebar && 'flex h-full flex-col overflow-hidden', className)}
+      contentClassName={cn(isSidebar && 'flex min-h-0 flex-1 flex-col gap-4', !isSidebar && 'gap-4')}
+      headerAction={headerAction}
     >
-      <div className="flex max-h-[520px] min-h-[300px] flex-col gap-3 overflow-y-auto pr-1">
+      <div
+        className={cn(
+          'flex flex-col gap-3 overflow-y-auto pr-1',
+          isSidebar ? 'min-h-0 flex-1' : 'max-h-[520px] min-h-[300px]',
+        )}
+      >
         {messages.length === 0 ? (
-          <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border p-6 text-center">
+          <div
+            className={cn(
+              'flex items-center justify-center rounded-2xl border border-dashed border-border p-6 text-center',
+              isSidebar ? 'min-h-[180px] flex-1' : 'min-h-[240px]',
+            )}
+          >
             <p className="max-w-md text-sm leading-6 text-muted-foreground">
               Start with a question about the source material, summary, flashcards, or quiz.
             </p>
@@ -120,7 +140,7 @@ export function ChatPanel({
         </p>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="flex shrink-0 flex-col gap-3">
         <TextArea
           value={draft}
           onChange={(event) => onDraftChange(event.target.value)}

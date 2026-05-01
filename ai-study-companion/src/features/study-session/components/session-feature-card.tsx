@@ -9,6 +9,7 @@ export function SessionFeatureCard({
   className,
   contentClassName,
   descriptionClassName,
+  headerAction,
 }: {
   title: string
   description?: string
@@ -16,16 +17,20 @@ export function SessionFeatureCard({
   className?: string
   contentClassName?: string
   descriptionClassName?: string
+  headerAction?: ReactNode
 }) {
   return (
     <Card className={cn('border border-border bg-card', className)}>
-      <CardHeader className="flex flex-col items-start gap-1">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        {description ? (
-          <p className={cn('text-sm text-muted-foreground', descriptionClassName)}>
-            {description}
-          </p>
-        ) : null}
+      <CardHeader className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          {description ? (
+            <p className={cn('text-sm text-muted-foreground', descriptionClassName)}>
+              {description}
+            </p>
+          ) : null}
+        </div>
+        {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
       </CardHeader>
 
       <Separator />

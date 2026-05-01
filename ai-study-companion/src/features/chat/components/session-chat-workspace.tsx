@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { ChatPanel } from '@/features/chat/components/chat-panel'
 import { useStreamChatMessage } from '@/features/chat/hooks/use-stream-chat-message'
@@ -7,7 +8,17 @@ import { ChatStreamError } from '@/features/chat/services/chat.service'
 import type { ChatMessage, StudySession } from '@/features/study-session/types/session.types'
 import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 
-export function SessionChatWorkspace({ session }: { session: StudySession }) {
+export function SessionChatWorkspace({
+  session,
+  variant = 'default',
+  className,
+  headerAction,
+}: {
+  session: StudySession
+  variant?: 'default' | 'sidebar'
+  className?: string
+  headerAction?: ReactNode
+}) {
   const [draft, setDraft] = useState('')
   const [streamingContent, setStreamingContent] = useState('')
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
@@ -100,6 +111,9 @@ export function SessionChatWorkspace({ session }: { session: StudySession }) {
       streamingContent={streamingContent}
       streamingMessageId={streamingMessageId}
       isStreaming={isStreaming}
+      variant={variant}
+      className={className}
+      headerAction={headerAction}
       onDraftChange={setDraft}
       onSubmit={handleSubmit}
     />
