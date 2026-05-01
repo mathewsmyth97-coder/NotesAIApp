@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { generateStructuredObject, getOpenRouterErrorStatus } from '@/lib/openrouter'
 import type { GeneratedStudyContent } from '@/features/study-session/types/session.types'
+import { normalizeGeneratedStudyContent } from '@/features/study-session/utils/generated-content-ids'
 
 const summarySchema = {
   type: 'object',
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
         `Study material:\n${sourceText}`,
     })
 
-    return NextResponse.json(result)
+    return NextResponse.json(normalizeGeneratedStudyContent(result))
   } catch (error) {
     return NextResponse.json(
       {

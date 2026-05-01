@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateStructuredObject, getOpenRouterErrorStatus } from '@/lib/openrouter'
+import { normalizeFlashcardIds } from '@/features/study-session/utils/generated-content-ids'
 
 const flashcardsSchema = {
   type: 'object',
@@ -50,7 +51,9 @@ export async function POST(request: Request) {
         `Study material:\n${sourceText}`,
     })
 
-    return NextResponse.json(result)
+    return NextResponse.json({
+      cards: normalizeFlashcardIds(result.cards),
+    })
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to generate flashcards' },

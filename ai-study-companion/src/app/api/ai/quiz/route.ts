@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateStructuredObject, getOpenRouterErrorStatus } from '@/lib/openrouter'
+import { normalizeQuizQuestionIds } from '@/features/study-session/utils/generated-content-ids'
 
 const quizSchema = {
   type: 'object',
@@ -63,7 +64,9 @@ export async function POST(request: Request) {
         `Study material:\n${sourceText}`,
     })
 
-    return NextResponse.json(result)
+    return NextResponse.json({
+      questions: normalizeQuizQuestionIds(result.questions),
+    })
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to generate quiz' },

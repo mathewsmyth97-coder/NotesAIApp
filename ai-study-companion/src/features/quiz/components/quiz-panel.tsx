@@ -10,7 +10,10 @@ export function QuizPanel({ questions }: { questions: QuizQuestion[] }) {
     >
         <div className="space-y-4">
           {questions.map((question, index) => (
-            <article key={question.id} className="rounded-2xl border border-border p-4">
+            <article
+              key={question.id || `question-${index}`}
+              className="rounded-2xl border border-border p-4"
+            >
               <div className="mb-4 flex items-start gap-3">
                 <Chip size="sm" variant="tertiary">
                   {index + 1}
@@ -19,12 +22,12 @@ export function QuizPanel({ questions }: { questions: QuizQuestion[] }) {
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                {question.options.map((option) => {
+                {question.options.map((option, optionIndex) => {
                   const isCorrect = option === question.correctAnswer
 
                   return (
                     <div
-                      key={option}
+                      key={`${option}-${optionIndex}`}
                       className="rounded-2xl border border-border px-3 py-2 text-sm"
                     >
                       <div className="flex items-center justify-between gap-3">

@@ -40,6 +40,7 @@ export async function getOpenRouterApiKeyForCurrentUser(): Promise<OpenRouterApi
   const { data, error } = await supabase
     .from('user_api_keys')
     .select('encrypted_key')
+    .eq('user_id', user.id)
     .eq('provider', 'openrouter')
     .eq('is_active', true)
     .order('updated_at', { ascending: false })

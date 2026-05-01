@@ -7,6 +7,10 @@ import type {
   GeneratedStudyContent,
   StudySession,
 } from '@/features/study-session/types/session.types'
+import {
+  normalizeFlashcardIds,
+  normalizeQuizQuestionIds,
+} from '@/features/study-session/utils/generated-content-ids'
 
 type StudySessionRow = {
   id: string
@@ -50,8 +54,8 @@ function toStudySession(row: StudySessionRow): StudySession {
     tone: row.tone,
     level: row.level,
     summary: row.summary ?? undefined,
-    flashcards: row.flashcards ?? undefined,
-    quiz: row.quiz ?? undefined,
+    flashcards: row.flashcards ? normalizeFlashcardIds(row.flashcards) : undefined,
+    quiz: row.quiz ? normalizeQuizQuestionIds(row.quiz) : undefined,
     messages: row.messages ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -65,8 +69,12 @@ function toUpdateRow(input: UpdateStudySessionInput) {
     ...(input.tone !== undefined ? { tone: input.tone } : {}),
     ...(input.level !== undefined ? { level: input.level } : {}),
     ...(input.summary !== undefined ? { summary: input.summary } : {}),
-    ...(input.flashcards !== undefined ? { flashcards: input.flashcards } : {}),
-    ...(input.quiz !== undefined ? { quiz: input.quiz } : {}),
+    ...(input.flashcards !== undefined
+      ? { flashcards: input.flashcards ? normalizeFlashcardIds(input.flashcards) : null }
+      : {}),
+    ...(input.quiz !== undefined
+      ? { quiz: input.quiz ? normalizeQuizQuestionIds(input.quiz) : null }
+      : {}),
     ...(input.messages !== undefined ? { messages: input.messages } : {}),
     updated_at: new Date().toISOString(),
   }
@@ -125,8 +133,8 @@ export async function createStudySession(input: CreateStudySessionInput) {
       tone: input.tone,
       level: input.level,
       summary: input.summary ?? null,
-      flashcards: input.flashcards ?? null,
-      quiz: input.quiz ?? null,
+      flashcards: input.flashcards ? normalizeFlashcardIds(input.flashcards) : null,
+      quiz: input.quiz ? normalizeQuizQuestionIds(input.quiz) : null,
       messages: [],
     })
     .select('*')

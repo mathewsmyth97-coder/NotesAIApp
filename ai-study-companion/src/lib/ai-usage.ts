@@ -42,22 +42,19 @@ function getDailyTokenLimit() {
   return Math.floor(value)
 }
 
-function getDayStartIso() {
+function getUsageWindow() {
   const now = new Date()
   const dayStart = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
   )
-
-  return dayStart.toISOString()
-}
-
-function getNextDayStartIso() {
-  const now = new Date()
   const nextDayStart = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
   )
 
-  return nextDayStart.toISOString()
+  return {
+    dayStart: dayStart.toISOString(),
+    nextDayStart: nextDayStart.toISOString(),
+  }
 }
 
 async function getCurrentUser() {
@@ -77,8 +74,7 @@ async function getCurrentUser() {
 export async function getCurrentAiUsageStatus(): Promise<AiUsageStatus> {
   const { supabase, user } = await getCurrentUser()
   const limit = getDailyTokenLimit()
-  const dayStart = getDayStartIso()
-  const nextDayStart = getNextDayStartIso()
+  const { dayStart, nextDayStart } = getUsageWindow()
   const { data, error } = await supabase
     .from('ai_usage')
     .select('tokens_used')
@@ -134,6 +130,16 @@ export async function recordAiUsage({
   feature: AiUsageFeature
   tokensUsed?: number | null
 }) {
+  const tokensToAdd =
+    typeof tokensUsed === 'number' && Number.isFinite(tokensUsed)
+      ? Math.max(0, Math.ceil(tokensUsed))
+      : 0
+
+  if (tokensToAdd === 0) {
+    console.warn('OpenRouter response did not include token usage.')
+    return
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -147,10 +153,10 @@ export async function recordAiUsage({
   const { error } = await supabase.from('ai_usage').insert({
     user_id: user.id,
     feature,
-    tokens_used: tokensUsed,
+    tokens_used: tokensToAdd,
   })
 
   if (error) {
-    console.error('Failed to record AI usage', error)
+    console.error('Failed to insert AI usage row', error)
   }
 }

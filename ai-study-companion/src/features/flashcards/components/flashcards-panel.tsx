@@ -9,8 +9,11 @@ export function FlashcardsPanel({ cards }: { cards: Flashcard[] }) {
       description="Quick recall prompts generated from the material."
     >
         <div className="grid gap-4 md:grid-cols-2">
-          {cards.map((card) => (
-            <article key={card.id} className="rounded-2xl border border-border p-4">
+          {cards.map((card, index) => (
+            <article
+              key={card.id || `flashcard-${index}`}
+              className="rounded-2xl border border-border p-4"
+            >
               <Chip size="sm" variant="tertiary">
                 Front
               </Chip>
