@@ -23,6 +23,9 @@ export function useSaveOpenRouterKey() {
     mutationFn: saveOpenRouterKey,
     onSuccess: (status) => {
       queryClient.setQueryData(openRouterKeyQueryKey, status)
+      void queryClient.invalidateQueries({
+        queryKey: ['settings', 'openrouter-models'],
+      })
     },
   })
 }
@@ -34,6 +37,9 @@ export function useRemoveOpenRouterKey() {
     mutationFn: removeOpenRouterKey,
     onSuccess: (status) => {
       queryClient.setQueryData(openRouterKeyQueryKey, status)
+      void queryClient.invalidateQueries({
+        queryKey: ['settings', 'openrouter-models'],
+      })
     },
   })
 }

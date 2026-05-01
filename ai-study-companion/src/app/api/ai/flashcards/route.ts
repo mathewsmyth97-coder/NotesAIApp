@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     }>({
       schemaName: 'flashcards_result',
       schema: flashcardsSchema,
+      usageFeature: 'flashcards',
       systemPrompt:
         `You are an AI study companion. ` +
         `Create useful study flashcards from the material. ` +

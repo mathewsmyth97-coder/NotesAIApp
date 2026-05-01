@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from 'react'
 import { FlashcardsPanel } from '@/features/flashcards/components/flashcards-panel'
 import { useGenerateFlashcards } from '@/features/flashcards/hooks/use-generate-flashcards'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import {
   GenerationStatusCard,
   GenerationToolbar,
@@ -89,6 +90,7 @@ export function SessionFlashcardsWorkspace({ session }: { session: StudySession 
   return (
     <div className="space-y-4">
       <GenerationToolbar>
+        <AiUsageMeter />
         <RegenerateButton
           label="Regenerate flashcards"
           isPending={isPending}

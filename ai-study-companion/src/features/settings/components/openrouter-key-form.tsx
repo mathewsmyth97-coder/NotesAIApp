@@ -79,7 +79,7 @@ export function OpenRouterKeyForm() {
         <p className="mt-2 text-sm text-muted-foreground">
           {data?.hasKey
             ? `${data.maskedKey}${savedAt ? ` - Updated ${savedAt}` : ''}`
-            : 'Use your own OpenRouter key for AI generation in this account.'}
+            : 'Use the app default key, or add your own OpenRouter key to use your account and bypass app limits.'}
         </p>
       </div>
 
@@ -100,9 +100,10 @@ export function OpenRouterKeyForm() {
         </div>
 
         <p className="text-sm leading-6 text-muted-foreground">
-          Create a dedicated OpenRouter key for this app and set a low spend
-          limit in OpenRouter. The full key is encrypted server-side and is not
-          shown again after saving.
+          Adding your own key is optional. If you do add one, create a
+          dedicated OpenRouter key for this app and set a low spend limit in
+          OpenRouter. The full key is encrypted server-side and is not shown
+          again after saving.
         </p>
 
         {error ? <p className="text-sm text-red-500">{error}</p> : null}

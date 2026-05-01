@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from 'react'
 import { QuizPanel } from '@/features/quiz/components/quiz-panel'
 import { useGenerateQuiz } from '@/features/quiz/hooks/use-generate-quiz'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import {
   GenerationStatusCard,
   GenerationToolbar,
@@ -89,6 +90,7 @@ export function SessionQuizWorkspace({ session }: { session: StudySession }) {
   return (
     <div className="space-y-4">
       <GenerationToolbar>
+        <AiUsageMeter />
         <RegenerateButton
           label="Regenerate quiz"
           isPending={isPending}

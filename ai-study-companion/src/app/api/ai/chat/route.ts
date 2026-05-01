@@ -3,6 +3,12 @@ import {
   MissingOpenRouterKeyError,
   OpenRouterKeyAuthError,
 } from '@/lib/openrouter-user-key'
+import { getOpenRouterModelForCurrentUser } from '@/lib/openrouter-model-preferences'
+import {
+  AiUsageLimitError,
+  assertAppKeyUsageAllowed,
+  recordAiUsage,
+} from '@/lib/ai-usage'
 
 type ChatMessage = {
   id: string
@@ -86,8 +92,12 @@ export async function POST(request: Request) {
       return new Response('Invalid payload', { status: 400 })
     }
 
-    const model = process.env.OPENROUTER_MODEL ?? 'openrouter/free'
-    const apiKey = await getOpenRouterApiKeyForCurrentUser()
+    const { apiKey, source } = await getOpenRouterApiKeyForCurrentUser()
+    const model = await getOpenRouterModelForCurrentUser('chat')
+
+    if (source === 'app') {
+      await assertAppKeyUsageAllowed('chat')
+    }
 
     const upstreamResponse = await fetch(
       'https://openrouter.ai/api/v1/chat/completions',
@@ -145,6 +155,18 @@ export async function POST(request: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         let buffer = ''
+        let hasRecordedUsage = false
+        let tokensUsed: number | null = null
+
+        const recordChatUsage = async () => {
+          if (source !== 'app' || hasRecordedUsage) return
+
+          hasRecordedUsage = true
+          await recordAiUsage({
+            feature: 'chat',
+            tokensUsed,
+          })
+        }
 
         try {
           while (true) {
@@ -171,6 +193,7 @@ export async function POST(request: Request) {
                 const payload = line.slice(5).trim()
 
                 if (payload === '[DONE]') {
+                  await recordChatUsage()
                   controller.close()
                   return
                 }
@@ -182,6 +205,9 @@ export async function POST(request: Request) {
                       finish_reason?: string | null
                     }>
                     error?: { message?: string }
+                    usage?: {
+                      total_tokens?: number
+                    }
                   }
 
                   if (json.error) {
@@ -191,6 +217,10 @@ export async function POST(request: Request) {
                     return
                   }
 
+                  if (typeof json.usage?.total_tokens === 'number') {
+                    tokensUsed = json.usage.total_tokens
+                  }
+
                   const content = json.choices?.[0]?.delta?.content
 
                   if (content) {
@@ -198,8 +228,8 @@ export async function POST(request: Request) {
                   }
 
                   const finishReason = json.choices?.[0]?.finish_reason
-                  if (finishReason && finishReason !== 'error') {
-                    controller.close()
+                  if (finishReason === 'error') {
+                    controller.error(new Error('OpenRouter stream error'))
                     return
                   }
                 } catch {
@@ -209,6 +239,7 @@ export async function POST(request: Request) {
             }
           }
 
+          await recordChatUsage()
           controller.close()
         } catch (error) {
           controller.error(error)
@@ -242,6 +273,16 @@ export async function POST(request: Request) {
           message: error.message,
         },
         { status: 400 },
+      )
+    }
+
+    if (error instanceof AiUsageLimitError) {
+      return Response.json(
+        {
+          code: 'usage_limit_reached',
+          message: error.message,
+        },
+        { status: 429 },
       )
     }
 

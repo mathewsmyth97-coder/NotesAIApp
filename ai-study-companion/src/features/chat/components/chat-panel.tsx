@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef } from 'react'
 import { Button, Chip, Spinner, TextArea } from '@heroui/react'
 import { Send } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import { SessionFeatureCard } from '@/features/study-session/components/session-feature-card'
 import type { ChatMessage } from '@/features/study-session/types/session.types'
 
@@ -128,7 +129,8 @@ export function ChatPanel({
           className="min-h-[96px] w-full"
         />
 
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <AiUsageMeter />
           <Button type="submit" variant="primary" isDisabled={!canSubmit}>
             {isStreaming ? <Spinner size="sm" /> : <Send className="h-4 w-4" />}
             Send

@@ -9,6 +9,7 @@ import {
   type CreateSessionInput,
 } from '@/features/study-session/schemas/session.schema'
 import { Button, Form, Input, Label, ListBox, Select, Spinner } from '@heroui/react'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import { useGenerateStudySession } from '@/features/study-session/hooks/use-generate-study-session'
 import { useCreateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 
@@ -173,14 +174,17 @@ export function NewSessionForm() {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        isDisabled={isGenerating}
-        className="rounded-2xl bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-90"
-      >
-        {isGenerating ? <Spinner size="sm" /> : null}
-        {isGenerating ? 'Generating study session...' : 'Generate study session'}
-      </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="submit"
+          isDisabled={isGenerating}
+          className="rounded-2xl bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-90"
+        >
+          {isGenerating ? <Spinner size="sm" /> : null}
+          {isGenerating ? 'Generating study session...' : 'Generate study session'}
+        </Button>
+        <AiUsageMeter />
+      </div>
 
       {generationError ? (
         <p className="text-sm text-red-500">{generationError}</p>

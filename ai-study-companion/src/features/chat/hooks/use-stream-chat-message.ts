@@ -1,9 +1,12 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { aiUsageQueryKey } from '@/features/ai-usage/hooks/use-ai-usage'
 import { streamChatMessage } from '@/features/chat/services/chat.service'
 
 export function useStreamChatMessage() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async ({
       payload,
@@ -27,6 +30,9 @@ export function useStreamChatMessage() {
       return streamChatMessage(payload, {
         onChunk,
       })
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: aiUsageQueryKey })
     },
   })
 }

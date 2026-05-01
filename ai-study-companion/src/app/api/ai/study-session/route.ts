@@ -83,6 +83,7 @@ export async function POST(request: Request) {
     const result = await generateStructuredObject<GeneratedStudyContent>({
       schemaName: 'study_session_result',
       schema: studySessionSchema,
+      usageFeature: 'study_session',
       systemPrompt:
         `You are an AI study companion. ` +
         `Generate one complete study session from the provided material. ` +

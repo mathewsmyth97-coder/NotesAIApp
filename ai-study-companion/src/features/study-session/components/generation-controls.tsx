@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { Button, Spinner } from '@heroui/react'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import { SessionFeatureCard } from '@/features/study-session/components/session-feature-card'
 
 type ButtonVariant = ComponentProps<typeof Button>['variant']
@@ -24,7 +25,7 @@ export function RegenerateButton({
 }
 
 export function GenerationToolbar({ children }: { children: ReactNode }) {
-  return <div className="flex justify-end">{children}</div>
+  return <div className="flex flex-wrap items-center justify-end gap-3">{children}</div>
 }
 
 export function GenerationStatusCard({
@@ -58,7 +59,8 @@ export function GenerationStatusCard({
         <>
           <p className="text-sm text-muted-foreground">{message}</p>
           {actionLabel && onAction ? (
-            <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <AiUsageMeter />
               <RegenerateButton
                 label={actionLabel}
                 isPending={isActionPending}

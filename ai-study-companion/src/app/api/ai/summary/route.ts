@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     }>({
       schemaName: 'summary_result',
       schema: summarySchema,
+      usageFeature: 'summary',
       systemPrompt:
         `You are an AI study companion. ` +
         `Summarize study material clearly and accurately. ` +

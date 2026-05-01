@@ -7,6 +7,11 @@ type UserApiKeyRow = {
   encrypted_key: string
 }
 
+export type OpenRouterApiKeyResolution = {
+  apiKey: string
+  source: 'user' | 'app'
+}
+
 export class OpenRouterKeyAuthError extends Error {
   constructor() {
     super('You must be signed in to use OpenRouter.')
@@ -16,12 +21,12 @@ export class OpenRouterKeyAuthError extends Error {
 
 export class MissingOpenRouterKeyError extends Error {
   constructor() {
-    super('Add your OpenRouter API key in settings before generating study content.')
+    super('OpenRouter is not configured for this app.')
     this.name = 'MissingOpenRouterKeyError'
   }
 }
 
-export async function getOpenRouterApiKeyForCurrentUser() {
+export async function getOpenRouterApiKeyForCurrentUser(): Promise<OpenRouterApiKeyResolution> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -48,8 +53,20 @@ export async function getOpenRouterApiKeyForCurrentUser() {
   const row = data as UserApiKeyRow | null
 
   if (!row) {
-    throw new MissingOpenRouterKeyError()
+    const appApiKey = process.env.OPENROUTER_API_KEY
+
+    if (!appApiKey) {
+      throw new MissingOpenRouterKeyError()
+    }
+
+    return {
+      apiKey: appApiKey,
+      source: 'app',
+    }
   }
 
-  return decryptSecret(row.encrypted_key)
+  return {
+    apiKey: decryptSecret(row.encrypted_key),
+    source: 'user',
+  }
 }

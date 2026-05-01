@@ -8,6 +8,7 @@ import {
 } from '@/features/study-session/components/generation-controls'
 import { useGenerateSummary } from '@/features/summary/hooks/use-generate-summary'
 import { SummaryPanel } from '@/features/summary/components/summary-panel'
+import { AiUsageMeter } from '@/features/ai-usage/components/ai-usage-meter'
 import { useUpdateStudySession } from '@/features/study-session/hooks/use-study-sessions'
 import type { StudySession } from '@/features/study-session/types/session.types'
 
@@ -88,6 +89,7 @@ export function SessionSummaryWorkspace({ session }: { session: StudySession }) 
   return (
     <div className="space-y-4">
       <GenerationToolbar>
+        <AiUsageMeter />
         <RegenerateButton
           label="Regenerate summary"
           isPending={isPending}

@@ -3,6 +3,13 @@ import {
   MissingOpenRouterKeyError,
   OpenRouterKeyAuthError,
 } from '@/lib/openrouter-user-key'
+import { getOpenRouterModelForCurrentUser } from '@/lib/openrouter-model-preferences'
+import {
+  AiUsageLimitError,
+  assertAppKeyUsageAllowed,
+  recordAiUsage,
+  type AiUsageFeature,
+} from '@/lib/ai-usage'
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
@@ -15,6 +22,10 @@ export function getOpenRouterErrorStatus(error: unknown) {
     return 400
   }
 
+  if (error instanceof AiUsageLimitError) {
+    return 429
+  }
+
   return 500
 }
 
@@ -23,13 +34,20 @@ export async function generateStructuredObject<T>({
   userPrompt,
   schemaName,
   schema,
+  usageFeature,
 }: {
   systemPrompt: string
   userPrompt: string
   schemaName: string
   schema: Record<string, unknown>
+  usageFeature: AiUsageFeature
 }): Promise<T> {
-  const apiKey = await getOpenRouterApiKeyForCurrentUser()
+  const { apiKey, source } = await getOpenRouterApiKeyForCurrentUser()
+  const model = await getOpenRouterModelForCurrentUser('generation')
+
+  if (source === 'app') {
+    await assertAppKeyUsageAllowed(usageFeature)
+  }
 
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
@@ -40,7 +58,7 @@ export async function generateStructuredObject<T>({
       'X-Title': 'AI Study Companion',
     },
     body: JSON.stringify({
-      model: process.env.OPENROUTER_MODEL ?? 'openrouter/free',
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -62,11 +80,20 @@ export async function generateStructuredObject<T>({
   }
 
   const json = await response.json()
+  const tokensUsed =
+    typeof json.usage?.total_tokens === 'number' ? json.usage.total_tokens : null
 
   const content = json.choices?.[0]?.message?.content
 
   if (typeof content !== 'string') {
     throw new Error('OpenRouter returned unexpected content')
+  }
+
+  if (source === 'app') {
+    await recordAiUsage({
+      feature: usageFeature,
+      tokensUsed,
+    })
   }
 
   return JSON.parse(content) as T

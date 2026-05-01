@@ -51,6 +51,7 @@ export async function POST(request: Request) {
     }>({
       schemaName: 'quiz_result',
       schema: quizSchema,
+      usageFeature: 'quiz',
       systemPrompt:
         `You are an AI study companion. ` +
         `Create a multiple-choice quiz from the material. ` +
