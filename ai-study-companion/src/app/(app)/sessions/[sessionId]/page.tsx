@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { SessionChatWorkspace } from '@/features/chat/components/session-chat-workspace'
+import { SessionChatSidebar } from '@/features/chat/components/session-chat-sidebar'
 import { SessionFlashcardsWorkspace } from '@/features/flashcards/components/session-flashcards-workspace'
 import { SessionQuizWorkspace } from '@/features/quiz/components/session-quiz-workspace'
 import { SessionTabs } from '@/features/study-session/components/session-tabs'
@@ -47,20 +47,25 @@ export default function SessionPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{session.title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Difficulty: {formatLabel(session.level)} - Tone: {formatLabel(session.tone)}
-        </p>
+    <div className="w-full">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="min-w-0 space-y-6">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">{session.title}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Difficulty: {formatLabel(session.level)} - Tone: {formatLabel(session.tone)}
+            </p>
+          </div>
+
+          <SessionTabs />
+
+          {activeTab === 'summary' && <SessionSummaryWorkspace session={session} />}
+          {activeTab === 'flashcards' && <SessionFlashcardsWorkspace session={session} />}
+          {activeTab === 'quiz' && <SessionQuizWorkspace session={session} />}
+        </div>
+
+        <SessionChatSidebar session={session} />
       </div>
-
-      <SessionTabs />
-
-      {activeTab === 'summary' && <SessionSummaryWorkspace session={session} />}
-      {activeTab === 'flashcards' && <SessionFlashcardsWorkspace session={session} />}
-      {activeTab === 'quiz' && <SessionQuizWorkspace session={session} />}
-      {activeTab === 'chat' && <SessionChatWorkspace session={session} />}
     </div>
   )
 }

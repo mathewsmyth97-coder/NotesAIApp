@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { useSessionUIStore } from '@/stores/session-ui.store'
 
-const tabs = ['summary', 'flashcards', 'quiz', 'chat'] as const
+const tabs = ['summary', 'flashcards', 'quiz'] as const
 
 
 export function SessionTabs() {

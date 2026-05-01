@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 interface SessionUIState {
-  activeTab: 'summary' | 'flashcards' | 'quiz' | 'chat'
+  activeTab: 'summary' | 'flashcards' | 'quiz'
   setActiveTab: (tab: SessionUIState['activeTab']) => void
 }
 
